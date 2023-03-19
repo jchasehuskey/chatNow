@@ -7,7 +7,6 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 import { GiftedChat, Bubble } from "react-native-gifted-chat";
-import { collection, orderBy, onSnapshot, addDoc } from "firebase/firestore";
 
 const renderBubble = (props) => {
   return (
@@ -29,25 +28,24 @@ export default function Chat(props) {
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    const messagesQuery = orderBy(collection(db, "messages"), "createdAt", "desc");
-    const unsubscribe = onSnapshot(messagesQuery, (querySnapshot) => {
-      const messages = querySnapshot.docs.map((doc) => {
-        const firebaseData = doc.data();
-
-        const data = {
-          _id: doc.id,
-          text: "",
-          createdAt: new Date(),
-          ...firebaseData,
-        };
-
-        return data;
-      });
-
-      setMessages(messages);
-    });
-
-    return unsubscribe;
+    setMessages([
+      {
+        _id: 1,
+        text: "Hello developer",
+        createdAt: new Date(),
+        user: {
+          _id: 2,
+          name: "React Native",
+          avatar: "https://placebear.com/140/140",
+        },
+      },
+      {
+        _id: 2,
+        text: "You've entered the chat",
+        createdAt: new Date(),
+        system: true,
+      },
+    ]);
   }, []);
 
   useEffect(() => {
@@ -66,8 +64,10 @@ export default function Chat(props) {
     });
   }, [props.route.params.name, props.route.params.color]);
 
-  const onSend = (newMessages) => {
-    addDoc(collection(db, "messages"), newMessages[0]);
+  const onSend = (newMessages = []) => {
+    setMessages((previousMessages) =>
+      GiftedChat.append(previousMessages, newMessages)
+    );
   };
 
   return (
@@ -78,7 +78,7 @@ export default function Chat(props) {
         messages={messages}
         renderBubble={renderBubble}
         onSend={(newMessages) => onSend(newMessages)}
-        user={{ _id: props.route.params.userId, name: props.route.params.name }}
+        user={{ _id: 1 }}
       />
       {Platform.OS === "android" ? (
         <KeyboardAvoidingView behavior="height" />
@@ -100,6 +100,11 @@ const styles = StyleSheet.create({
 });
 
 
+
+
+
+
+
 // import React, { useState, useEffect } from "react";
 // import {
 //   View,
@@ -109,6 +114,7 @@ const styles = StyleSheet.create({
 //   KeyboardAvoidingView,
 // } from "react-native";
 // import { GiftedChat, Bubble } from "react-native-gifted-chat";
+// import { collection, orderBy, onSnapshot, addDoc } from "firebase/firestore";
 
 // const renderBubble = (props) => {
 //   return (
@@ -130,24 +136,25 @@ const styles = StyleSheet.create({
 //   const [messages, setMessages] = useState([]);
 
 //   useEffect(() => {
-//     setMessages([
-//       {
-//         _id: 1,
-//         text: "Hello developer",
-//         createdAt: new Date(),
-//         user: {
-//           _id: 2,
-//           name: "React Native",
-//           avatar: "https://placebear.com/140/140",
-//         },
-//       },
-//       {
-//         _id: 2,
-//         text: "You've entered the chat",
-//         createdAt: new Date(),
-//         system: true,
-//       },
-//     ]);
+//     const messagesQuery = orderBy(collection(db, "messages"), "createdAt", "desc");
+//     const unsubscribe = onSnapshot(messagesQuery, (querySnapshot) => {
+//       const messages = querySnapshot.docs.map((doc) => {
+//         const firebaseData = doc.data();
+
+//         const data = {
+//           _id: doc.id,
+//           text: "",
+//           createdAt: new Date(),
+//           ...firebaseData,
+//         };
+
+//         return data;
+//       });
+
+//       setMessages(messages);
+//     });
+
+//     return unsubscribe;
 //   }, []);
 
 //   useEffect(() => {
@@ -166,10 +173,8 @@ const styles = StyleSheet.create({
 //     });
 //   }, [props.route.params.name, props.route.params.color]);
 
-//   const onSend = (newMessages = []) => {
-//     setMessages((previousMessages) =>
-//       GiftedChat.append(previousMessages, newMessages)
-//     );
+//   const onSend = (newMessages) => {
+//     addDoc(collection(db, "messages"), newMessages[0]);
 //   };
 
 //   return (
@@ -180,7 +185,7 @@ const styles = StyleSheet.create({
 //         messages={messages}
 //         renderBubble={renderBubble}
 //         onSend={(newMessages) => onSend(newMessages)}
-//         user={{ _id: 1 }}
+//         user={{ _id: props.route.params.userId, name: props.route.params.name }}
 //       />
 //       {Platform.OS === "android" ? (
 //         <KeyboardAvoidingView behavior="height" />
@@ -200,3 +205,5 @@ const styles = StyleSheet.create({
 //     flex: 1,
 //   },
 // });
+
+

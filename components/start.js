@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { 
     View, 
@@ -8,8 +9,6 @@ import {
     ImageBackground, 
     TouchableOpacity 
 } from 'react-native';
-
-import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
 
 const backgroundColors = {
     black: { backgroundColor: '#000000'},
@@ -23,43 +22,9 @@ export default class Start extends React.Component {
     constructor(props) {
         super(props);
         this.state = { name: '', color: ''};
-
-        const auth = getAuth();
-
-        // In the onPress event handler of "Start Chatting", instead of navigating the user to Chat screen, call signInAnonymously() to log in the user.
-        const handlePress = () => {
-          signInAnonymously(auth)
-            .then((userCredential) => {
-              // navigate to the Chat screen while passing three route parameters: the user's id, user's name and the selected background color
-              this.props.navigation.navigate("Chat", {
-                userId: userCredential.user.uid,
-                name: this.state.name,
-                color: this.state.color,
-              });
-            })
-            .catch((error) => {
-              console.log(error);
-            });
-        };
     }
-    
     render () {
         const { black, grey, purple, green} = backgroundColors;
-        const auth = getAuth();
-        const handlePress = () => {
-            signInAnonymously(auth)
-            .then((userCredential) => {
-              // navigate to the Chat screen while passing three route parameters: the user's id, user's name and the selected background color
-              this.props.navigation.navigate("Chat", {
-                userId: userCredential.user.uid,
-                name: this.state.name,
-                color: this.state.color,
-              });
-            })
-            .catch((error) => {
-              console.log(error);
-            });
-        };
         return (
             <View style={styles.container}>
                 <ImageBackground
@@ -235,6 +200,19 @@ const styles = StyleSheet.create({
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 // import React from 'react';
 // import { 
 //     View, 
@@ -245,6 +223,8 @@ const styles = StyleSheet.create({
 //     ImageBackground, 
 //     TouchableOpacity 
 // } from 'react-native';
+
+// import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
 
 // const backgroundColors = {
 //     black: { backgroundColor: '#000000'},
@@ -258,9 +238,43 @@ const styles = StyleSheet.create({
 //     constructor(props) {
 //         super(props);
 //         this.state = { name: '', color: ''};
+
+//         const auth = getAuth();
+
+//         // In the onPress event handler of "Start Chatting", instead of navigating the user to Chat screen, call signInAnonymously() to log in the user.
+//         const handlePress = () => {
+//           signInAnonymously(auth)
+//             .then((userCredential) => {
+//               // navigate to the Chat screen while passing three route parameters: the user's id, user's name and the selected background color
+//               this.props.navigation.navigate("Chat", {
+//                 userId: userCredential.user.uid,
+//                 name: this.state.name,
+//                 color: this.state.color,
+//               });
+//             })
+//             .catch((error) => {
+//               console.log(error);
+//             });
+//         };
 //     }
+    
 //     render () {
 //         const { black, grey, purple, green} = backgroundColors;
+//         const auth = getAuth();
+//         const handlePress = () => {
+//             signInAnonymously(auth)
+//             .then((userCredential) => {
+//               // navigate to the Chat screen while passing three route parameters: the user's id, user's name and the selected background color
+//               this.props.navigation.navigate("Chat", {
+//                 userId: userCredential.user.uid,
+//                 name: this.state.name,
+//                 color: this.state.color,
+//               });
+//             })
+//             .catch((error) => {
+//               console.log(error);
+//             });
+//         };
 //         return (
 //             <View style={styles.container}>
 //                 <ImageBackground
@@ -428,3 +442,10 @@ const styles = StyleSheet.create({
 //         borderColor: "#5f5f5f",
 //       },
 // })
+
+
+
+
+
+
+
