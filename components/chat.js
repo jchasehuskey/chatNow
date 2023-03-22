@@ -59,10 +59,12 @@ export default function Chat({ navigation, route, db, isConnected }) {
                 user: data.user,
                 });
             });
-            cacheMessages();
+            cacheMessages(newMessages);
             setMessages(newMessages);
             });
         } else  loadCachedMessages();
+        console.log('cachedmessages should be loading');
+        console.log('currently offline');
 
          // Clean up code
      return () => {
