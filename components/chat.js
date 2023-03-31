@@ -5,10 +5,13 @@ import {
   StyleSheet,
   Platform,
   KeyboardAvoidingView,
+  Image
 } from "react-native";
 import { GiftedChat, Bubble, InputToolbar} from "react-native-gifted-chat";
 import { collection, addDoc, onSnapshot, query, orderBy } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import CustomActions from './CustomActions';
+import MapView from 'react-native-maps';
 
 const renderBubble = (props) => {
   return (
@@ -28,7 +31,7 @@ const renderBubble = (props) => {
 
 
 
-export default function Chat({ navigation, route, db, isConnected }) {
+export default function Chat({ navigation, route, db, isConnected ,storage }) {
   const { userID } = route.params;
   const [messages, setMessages] = useState([]);
   
@@ -135,6 +138,47 @@ export default function Chat({ navigation, route, db, isConnected }) {
     addMessage(newMessage);
   };
 
+
+const renderCustomActions = (props) => {
+    return <CustomActions storage={storage} {...props} />;
+  };
+
+  const renderCustomView = (props) => {
+    const { currentMessage} = props;
+    if (currentMessage.location) {
+      return (
+          <MapView
+            style={{width: 150,
+              height: 100,
+              borderRadius: 13,
+              margin: 3}}
+            region={{
+              latitude: currentMessage.location.latitude,
+              longitude: currentMessage.location.longitude,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+            }}
+          />
+      );
+    }
+    return null;
+  }
+
+
+
+
+
+<GiftedChat
+  messages={messages}
+  renderBubble={renderBubble}
+  renderInputToolbar={renderInputToolbar}
+  renderActions={renderCustomActions}
+  onSend={onSend}
+  user={{ _id: userID, name: route.params.name }}
+/>
+
+
+
   return (
     <View
       style={[styles.container, { backgroundColor: route.params.color }]}
@@ -143,6 +187,8 @@ export default function Chat({ navigation, route, db, isConnected }) {
         messages={messages}
         renderBubble={renderBubble}
         renderInputToolbar={renderInputToolbar}
+        renderActions={renderCustomActions}
+        renderCustomView={renderCustomView}
         onSend={onSend}
         user={{ _id: userID, name: route.params.name }}
       />
