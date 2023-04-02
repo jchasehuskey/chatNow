@@ -1,4 +1,4 @@
-React Native Chat App: "Hello World!"
+React Native Chat App: "ChatNow"
 ChatNow App
 
 This is a simple chat application built using React Native. It allows users to enter a chat room and exchange messages, images and location data with their friends and family. The application stores data both online and offline, allowing users to read their messages even when offline.
