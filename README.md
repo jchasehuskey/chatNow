@@ -1,7 +1,10 @@
 React Native Chat App: "ChatNow"
-![alt text](./assets/chatNow.png)
+
 
 ChatNow App
+
+
+![alt text](./assets/chatNow.png)
 
 This is a simple chat application built using React Native. It allows users to enter a chat room and exchange messages, images and location data with their friends and family. The application stores data both online and offline, allowing users to read their messages even when offline.
 
@@ -93,9 +96,12 @@ Alert and LogBox
 The App component uses Alert from react-native to display an alert when the network connection is lost. It also uses LogBox from react-native to ignore warning messages related to AsyncStorage and Metro.
 
 Start.js
-![alt text](./assets/start.png)
+
 
 color picker
+
+
+![alt text](./assets/start.png)
 
 The Start component is the landing page of the React Native chat app. It allows the user to enter their name and choose a background color for the chat screen before joining the chat. This component uses Firebase anonymous authentication to create a new user ID for the user.
 
@@ -141,10 +147,14 @@ react-native-gesture-handler
 Note: Make sure to install these dependencies in your project before using the Start component.
 
 Chat.js
-![alt text](./assets/chat.png)
+
 
 
 Chat Screen
+
+
+
+![alt text](./assets/chat.png)
 
 The Chat component is responsible for displaying the main chat screen of the application where users can send and receive messages. It contains several features such as customized bubbles, the ability to send images and location data, and it supports both online and offline messaging.
 
@@ -208,9 +218,12 @@ export default App;
 Note: In the above example, the isConnected prop is not passed in explicitly, so it defaults to true. If the user is offline, messages will be stored locally until the user is connected again.
 
 CustomActions.js
-![alt text](./assets/customActions.png)
+
 
 Custom Actions
+
+
+![alt text](./assets/customActions.png)
 
 CustomActions.js is a component that allows users to perform different actions within the chat interface, such as uploading an image, taking a photo, or sharing their current location.
 
