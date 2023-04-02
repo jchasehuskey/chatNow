@@ -1,3 +1,4 @@
+// Import the necessary modules
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -5,101 +6,52 @@ import {
   StyleSheet,
   Platform,
   KeyboardAvoidingView,
-  Image
 } from "react-native";
-import { GiftedChat, Bubble, InputToolbar} from "react-native-gifted-chat";
-import { collection, addDoc, onSnapshot, query, orderBy } from "firebase/firestore";
+import { GiftedChat, Bubble, InputToolbar } from "react-native-gifted-chat";
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  addDoc,
+} from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import CustomActions from './CustomActions';
-import MapView from 'react-native-maps';
+import CustomActions from "./CustomActions";
+import MapView from "react-native-maps";
 
+// Function to customize the appearance of chat bubbles
 const renderBubble = (props) => {
   return (
     <Bubble
       {...props}
       wrapperStyle={{
         right: {
-          backgroundColor: "#000",
+          backgroundColor: "#51A3DF",
         },
         left: {
-          backgroundColor: "#FFF",
+          backgroundColor: "#E1E5E6",
         },
       }}
     />
   );
 };
 
+// Function to conditionally render the input toolbar based upon a users connection status
+const renderInputToolbar = (isConnected) => (props) => {
+  if (isConnected) return <InputToolbar {...props} />;
+  else return null;
+};
 
-
-export default function Chat({ navigation, route, db, isConnected ,storage }) {
-  const { userID } = route.params;
+// Define the Chat component as the default export of the module
+export default function Chat({ navigation, route, db, isConnected, storage }) {
+  //State for storing chat messages
   const [messages, setMessages] = useState([]);
-  
-  const renderInputToolbar = (props) => {
-    if (isConnected) return <InputToolbar {...props} />;
-    else return null;
-   }
-
-  let unsubMessages;
-
-  useEffect(() => {
-        if (isConnected === true){
-
-              // unregister current onSnapshot() listener to avoid registering multiple listeners when
-                // useEffect code is re-executed.
-          if (unsubMessages) unsubMessages();
-             unsubMessages = null;
-            const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
-            unsubMessages = onSnapshot(q,(documentsSnapshot) => {
-            let newMessages = [];
-            documentsSnapshot.forEach((doc) => {
-                const data = doc.data();
-                const createdAt = data.createdAt.toDate(); // Convert Firestore timestamp to JS date object
-                newMessages.push({
-                _id: doc.id,
-                text: data.text,
-                createdAt: createdAt,
-                user: data.user,
-                });
-            });
-            cacheMessages(newMessages);
-            setMessages(newMessages);
-            });
-        } else  loadCachedMessages();
-        console.log('cachedmessages should be loading');
-        console.log('currently offline');
-
-         // Clean up code
-     return () => {
-        if (unsubMessages) unsubMessages();
-      }
-  }, [db],[isConnected]);
-
-  const cacheMessages=async(messagesToCache) =>{
-    try{
-        await AsyncStorage.setItem('messages',JSON.stringify(messagesToCache));
-    }catch(error){
-        console.log(error.message);
-    }
-  }
-
-  const loadCachedMessages = async () => {
-    const cachedMessages = await AsyncStorage.getItem("messages");
-    if (cachedMessages !== null) {
-      setMessages(JSON.parse(cachedMessages));
-    }
-  };
-  
-
-//   const loadCachedMessages = async () => {
-//     const cachedMessages = await AsyncStorage.getItem("messages") || [];
-//     setMessages(JSON.parse(cachedMessages));
-//   }
+  const { name, userID } = route.params;
 
   useEffect(() => {
     // Retrieve the name and color values from the navigation prop
-    const name = route.params.name;
-    const color = route.params.color;
+    let name = route.params.name;
+    let color = route.params.color;
 
     // Set the header title to the name value
     navigation.setOptions({ title: name });
@@ -110,48 +62,75 @@ export default function Chat({ navigation, route, db, isConnected ,storage }) {
         backgroundColor: color,
       },
     });
-  }, [route.params.name, route.params.color]);
 
-  const addMessage = (newMessage) => {
-    addDoc(collection(db, "messages"), newMessage)
-      .then(() => {
-        console.log("Message added to Firestore");
-      })
-      .catch((error) => {
-        console.error("Error adding message to Firestore: ", error);
+    // Fetching messages from Firebase if connected, otherwise from local storage
+    if (isConnected) {
+      const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
+      const unsubscribe = onSnapshot(q, async (querySnapshot) => {
+        const fetchedMessages = [];
+        querySnapshot.forEach((doc) => {
+          const fetchedMessage = doc.data();
+          fetchedMessage.createdAt = new Date(
+            fetchedMessage.createdAt.seconds * 1000
+          );
+          fetchedMessages.push(fetchedMessage);
+        });
+
+        try {
+          await AsyncStorage.setItem(
+            "messages",
+            JSON.stringify(fetchedMessages)
+          );
+        } catch (error) {
+          console.log(error);
+        }
+
+        setMessages(fetchedMessages);
       });
-  };
 
+      // Unsubscribe from Firebase listener on component unmount
+      return () => {
+        unsubscribe();
+      };
+    } else {
+      // Get cached messages from local storage
+      AsyncStorage.getItem("messages").then((cachedMessages) => {
+        if (cachedMessages !== null) {
+          setMessages(JSON.parse(cachedMessages));
+        }
+      });
+    }
+  }, [navigation, route.params.name, route.params.color, db, isConnected]);
+
+  // Function that adds a new message to the "messages" collection in Firestore when the user sends a message
   const onSend = (newMessages) => {
-    const message = newMessages[0];
-    const newMessage = {
-      _id: message._id,
-      createdAt: message.createdAt,
-      text: message.text || "",
+    addDoc(collection(db, "messages"), {
+      ...newMessages[0],
+      createdAt: new Date(),
       user: {
-        _id: userID,
+        _id: route.params.userID,
         name: route.params.name,
+        avatar: "https://placebear.com/140/140",
       },
-      image: message.image || null,
-      location: message.location || null,
-    };
-    addMessage(newMessage);
+    });
   };
 
-
-const renderCustomActions = (props) => {
+  //Render custom actions for sending images, locations, etc...
+  const renderCustomActions = (props) => {
     return <CustomActions storage={storage} {...props} />;
   };
 
+  // Render custom view for displaying locations
   const renderCustomView = (props) => {
-    const { currentMessage} = props;
+    const { currentMessage } = props;
     if (currentMessage.location) {
       return (
+        <View style={{ margin: 5, borderRadius: 13, overflow: "hidden" }}>
           <MapView
-            style={{width: 150,
+            style={{
+              width: 150,
               height: 100,
-              borderRadius: 13,
-              margin: 3}}
+            }}
             region={{
               latitude: currentMessage.location.latitude,
               longitude: currentMessage.location.longitude,
@@ -159,49 +138,31 @@ const renderCustomActions = (props) => {
               longitudeDelta: 0.0421,
             }}
           />
+        </View>
       );
     }
     return null;
-  }
-
-
-
-
-
-<GiftedChat
-  messages={messages}
-  renderBubble={renderBubble}
-  renderInputToolbar={renderInputToolbar}
-  renderActions={renderCustomActions}
-  onSend={onSend}
-  user={{ _id: userID, name: route.params.name }}
-/>
-
-
+  };
 
   return (
-    <View
-      style={[styles.container, { backgroundColor: route.params.color }]}
-    >
+    <View style={[styles.container, { backgroundColor: route.params.color }]}>
       <GiftedChat
         messages={messages}
         renderBubble={renderBubble}
-        renderInputToolbar={renderInputToolbar}
+        renderInputToolbar={renderInputToolbar(isConnected)}
+        onSend={(messages) => onSend(messages)}
         renderActions={renderCustomActions}
         renderCustomView={renderCustomView}
-        onSend={onSend}
-        user={{ _id: userID, name: route.params.name }}
+        user={{
+          _id: userID,
+          name,
+          avatar: "https://placebear.com/140/140",
+        }}
       />
       {Platform.OS === "android" ? (
         <KeyboardAvoidingView behavior="height" />
       ) : null}
-      {Platform.OS === "ios" ? (
-        <KeyboardAvoidingView behavior="padding" />
-      ) : null}
-      <Button
-        title="Leave Chat"
-        onPress={() => navigation.navigate("Start")}
-      />
+      <Button title="Leave Chat" onPress={() => navigation.navigate("Start")} />
     </View>
   );
 }
