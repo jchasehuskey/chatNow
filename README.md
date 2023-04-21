@@ -64,7 +64,7 @@ Install nodejs LTS version.
 * In there create a Firestore Database
 * At 'Settings' -> 'General' -> 'Your apps' -> 'Firestore for Web' generate your configuration object.
 
-### Instillation:
+### Installation:
 * Clone the repository
 git clone https://github.com/jchasehuskey/chatNow.git
 cd chat
