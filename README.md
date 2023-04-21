@@ -54,37 +54,43 @@ The App component requires the following dependencies to be installed:
 * @react-native-community/netinfo
 
 --- 
+# Getting Started 
+## Prerequisites
+Install nodejs LTS version.
 
-## Usage
-To use the App component, import it into your React Native project and include it in your app:
+### Setting up your database
+* Sign in at Google Firebase
+* Create a new project in test mode
+* In there create a Firestore Database
+* At 'Settings' -> 'General' -> 'Your apps' -> 'Firestore for Web' generate your configuration object.
 
-import App from './App';
+### Instillation:
+* Clone the repository
+git clone https://github.com/jchasehuskey/chatNow.git
+cd chat
 
-export default function MyChatApp() {
-return (
-<App />
-);
-}
-Props
+In the App.js file replace the firebaseConfig variable with the configuration info from your own Firestore database:
 
-The App component does not accept any props.
+firebase.initializeApp({
+  apiKey: "your-api-key",
+  authDomain: "your-authdomain",
+  projectId: "your-project-id",
+  storageBucket: "your-storage-bucket",
+  messagingSenderId: "your-messaging-sender-id",
+  appId: "your-app-id",
+});
 
-## Components
-The App component imports and renders two other components:
+then run the next commands:
 
-Start: The start screen where the user enters their name and chooses a background color.
-Chat: The chat screen where the user can send and receive messages.
-Firebase Configuration
-The App component requires a Firebase configuration object with the following properties:
+npx expo install
+npx expo start
 
-const firebaseConfig = {
-  apiKey: "<API_KEY>",
-  authDomain: "<AUTH_DOMAIN>",
-  projectId: "<PROJECT_ID>",
-  storageBucket: "<STORAGE_BUCKET>",
-  messagingSenderId: "<MESSAGING_SENDER_ID>",
-  appId: "<APP_ID>"
-};
+Install the Expo Go App from Apple Store or Google Play Store to test the project on your mobile device
+
+Install Android Studio for Android Emulator or Xcode for ios Simulator to test the app
+
+---
+
 
 ### Firebase Setup
 To set up Firebase, you need to create a project in the Firebase Console, enable the Firestore and Storage services, and then copy the configuration object to your app. For more information, see the Firebase documentation.
